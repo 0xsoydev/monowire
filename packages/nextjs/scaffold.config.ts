@@ -1,4 +1,32 @@
+import { defineChain } from "viem";
 import * as chains from "viem/chains";
+
+// Define Monad Testnet
+export const monadTestnet = defineChain({
+  id: 41143,
+  name: "Monad Testnet",
+  network: "monad-testnet",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Monad",
+    symbol: "MON",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://testnet-rpc.monad.xyz"],
+    },
+    public: {
+      http: ["https://testnet-rpc.monad.xyz"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Monad Explorer",
+      url: "https://testnet.monadexplorer.com",
+    },
+  },
+  testnet: true,
+});
 
 export type BaseConfig = {
   targetNetworks: readonly chains.Chain[];
@@ -15,7 +43,7 @@ export const DEFAULT_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chains.foundry],
+  targetNetworks: [monadTestnet],
   // The interval at which your front-end polls the RPC servers for new data (it has no effect if you only target the local network (default is 4000))
   pollingInterval: 30000,
   // This is ours Alchemy's default API key.
