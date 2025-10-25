@@ -4,6 +4,117 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  41143: {
+    MonadPay: {
+      address: "0x0000000000000000000000000000000000000000", // TODO: Replace with actual deployed address
+      inheritedFunctions: {},
+      deployedOnBlock: 0, // TODO: Update with actual block number after deployment
+      abi: [
+        {
+          type: "function",
+          name: "createInvoice",
+          inputs: [
+            { name: "_amount", type: "uint256", internalType: "uint256" },
+            { name: "_token", type: "address", internalType: "address" },
+            { name: "_description", type: "string", internalType: "string" },
+            {
+              name: "_splits",
+              type: "tuple[]",
+              internalType: "struct MonadPay.Split[]",
+              components: [
+                { name: "recipient", type: "address", internalType: "address" },
+                { name: "basisPoints", type: "uint256", internalType: "uint256" },
+              ],
+            },
+          ],
+          outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "payInvoice",
+          inputs: [{ name: "_invoiceId", type: "bytes32", internalType: "bytes32" }],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getInvoice",
+          inputs: [{ name: "_invoiceId", type: "bytes32", internalType: "bytes32" }],
+          outputs: [
+            { name: "id", type: "bytes32", internalType: "bytes32" },
+            { name: "creator", type: "address", internalType: "address" },
+            { name: "amount", type: "uint256", internalType: "uint256" },
+            { name: "token", type: "address", internalType: "address" },
+            { name: "description", type: "string", internalType: "string" },
+            { name: "paid", type: "bool", internalType: "bool" },
+            { name: "createdAt", type: "uint256", internalType: "uint256" },
+            { name: "paidAt", type: "uint256", internalType: "uint256" },
+            { name: "paidBy", type: "address", internalType: "address" },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getInvoiceSplits",
+          inputs: [{ name: "_invoiceId", type: "bytes32", internalType: "bytes32" }],
+          outputs: [
+            {
+              name: "",
+              type: "tuple[]",
+              internalType: "struct MonadPay.Split[]",
+              components: [
+                { name: "recipient", type: "address", internalType: "address" },
+                { name: "basisPoints", type: "uint256", internalType: "uint256" },
+              ],
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "invoiceExists",
+          inputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+          outputs: [{ name: "", type: "bool", internalType: "bool" }],
+          stateMutability: "view",
+        },
+        {
+          type: "event",
+          name: "InvoiceCreated",
+          inputs: [
+            { name: "invoiceId", type: "bytes32", indexed: true, internalType: "bytes32" },
+            { name: "creator", type: "address", indexed: true, internalType: "address" },
+            { name: "amount", type: "uint256", indexed: false, internalType: "uint256" },
+            { name: "token", type: "address", indexed: false, internalType: "address" },
+            { name: "splitCount", type: "uint256", indexed: false, internalType: "uint256" },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "InvoicePaid",
+          inputs: [
+            { name: "invoiceId", type: "bytes32", indexed: true, internalType: "bytes32" },
+            { name: "payer", type: "address", indexed: true, internalType: "address" },
+            { name: "amount", type: "uint256", indexed: false, internalType: "uint256" },
+            { name: "token", type: "address", indexed: false, internalType: "address" },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "SplitDistributed",
+          inputs: [
+            { name: "invoiceId", type: "bytes32", indexed: true, internalType: "bytes32" },
+            { name: "recipient", type: "address", indexed: true, internalType: "address" },
+            { name: "amount", type: "uint256", indexed: false, internalType: "uint256" },
+          ],
+          anonymous: false,
+        },
+      ],
+    },
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
