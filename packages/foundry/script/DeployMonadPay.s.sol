@@ -6,7 +6,22 @@ import "../contracts/MonadPay.sol";
 
 contract DeployMonadPay is Script {
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        // Read private key as string to handle both with and without 0x prefix
+        string memory pkString = vm.envString("DEPLOYER_PRIVATE_KEY");
+        
+        // Convert to uint256 - vm.parseBytes32 handles both formats
+        uint256 deployerPrivateKey;
+        
+        // Check if the key starts with 0x
+        bytes memory pkBytes = bytes(pkString);
+        if (pkBytes.length >= 2 && pkBytes[0] == "0" && pkBytes[1] == "x") {
+            // Has 0x prefix, parse as is
+            deployerPrivateKey = vm.parseUint(pkString);
+        } else {
+            // No prefix, add it
+            deployerPrivateKey = vm.parseUint(string.concat("0x", pkString));
+        }
+        
         vm.startBroadcast(deployerPrivateKey);
 
         MonadPay monadPay = new MonadPay();

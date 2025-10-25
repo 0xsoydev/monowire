@@ -3,7 +3,7 @@ import * as chains from "viem/chains";
 
 // Define Monad Testnet
 export const monadTestnet = defineChain({
-  id: 41143,
+  id: 10143, // Actual chain ID returned by RPC (0x279f in hex)
   name: "Monad Testnet",
   network: "monad-testnet",
   nativeCurrency: {

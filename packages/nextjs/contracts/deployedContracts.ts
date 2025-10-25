@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  41143: {
+  10143: {
     MonadPay: {
-      address: "0x0000000000000000000000000000000000000000", // TODO: Replace with actual deployed address
+      address: "0x2905fcb25b64e5AD092967410043E35746C7f697", // TODO: Replace with actual deployed address
       inheritedFunctions: {},
       deployedOnBlock: 0, // TODO: Update with actual block number after deployment
       abi: [

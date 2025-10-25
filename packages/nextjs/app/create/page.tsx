@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { parseUnits } from "viem";
-import { useAccount } from "wagmi";
+import { decodeEventLog, parseUnits } from "viem";
+import { useAccount, usePublicClient } from "wagmi";
+import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -15,6 +16,7 @@ interface Recipient {
 
 export default function CreateInvoice() {
   const { address: userAddress } = useAccount();
+  const publicClient = usePublicClient();
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -27,7 +29,7 @@ export default function CreateInvoice() {
 
   const { writeContractAsync } = useScaffoldWriteContract("MonadPay");
 
-  const USDC_ADDRESS = "0xf817257ed378db8d94729d51756917d3168cb558"; // Monad USDC
+  const USDC_ADDRESS = "0xf817257fed379853cDe0fa4F97AB987181B1E5Ea"; // Monad USDC
 
   async function generateWithAI() {
     if (!aiPrompt.trim()) return;
@@ -94,18 +96,51 @@ export default function CreateInvoice() {
         basisPoints: BigInt(Math.round(r.percentage * 100)), // Convert percentage to basis points
       }));
 
-      await writeContractAsync({
+      const txHash = await writeContractAsync({
         functionName: "createInvoice",
         args: [amountInUSDC, USDC_ADDRESS, description, splits],
       });
 
-      // In a real app, you'd parse the event from the transaction receipt
-      // For now, we'll use a placeholder
-      const placeholderInvoiceId = `0x${Date.now().toString(16).padStart(64, "0")}`;
+      // Get the transaction receipt to extract the invoice ID from events
+      if (publicClient && txHash) {
+        const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
 
-      setInvoiceId(placeholderInvoiceId);
+        // Find the InvoiceCreated event
+        const monadPayAbi = deployedContracts[10143].MonadPay.abi;
+        const invoiceCreatedEvent = receipt.logs.find(log => {
+          try {
+            const decoded = decodeEventLog({
+              abi: monadPayAbi,
+              data: log.data,
+              topics: log.topics,
+            });
+            return decoded.eventName === "InvoiceCreated";
+          } catch {
+            return false;
+          }
+        });
+
+        if (invoiceCreatedEvent) {
+          const decoded = decodeEventLog({
+            abi: monadPayAbi,
+            data: invoiceCreatedEvent.data,
+            topics: invoiceCreatedEvent.topics,
+          });
+
+          const actualInvoiceId = (decoded.args as any).invoiceId as string;
+          setInvoiceId(actualInvoiceId);
+        } else {
+          // Fallback to placeholder if we can't find the event
+          const placeholderInvoiceId = `0x${Date.now().toString(16).padStart(64, "0")}`;
+          setInvoiceId(placeholderInvoiceId);
+        }
+      } else {
+        // Fallback if no public client
+        const placeholderInvoiceId = `0x${Date.now().toString(16).padStart(64, "0")}`;
+        setInvoiceId(placeholderInvoiceId);
+      }
+
       setShowSuccess(true);
-
       notification.success("Invoice created successfully! 🎉");
     } catch (error: any) {
       console.error("Create invoice error:", error);
